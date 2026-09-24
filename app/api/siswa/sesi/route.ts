@@ -2,17 +2,23 @@ import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+function isMissingTableError(error: any) { return error?.code === "42P01" || error?.code === "PGRST205" || String(error?.message || "").toLowerCase().includes("could not find the table"); }
+
 export async function POST(request: Request) {
   const auth = await requireRole("siswa");
   if ("response" in auth) return auth.response;
   const body = await request.json().catch(() => ({}));
   if (!body.jadwalId || !body.token) return NextResponse.json({ error: "Jadwal dan token wajib diisi." }, { status: 400 });
   const supabase = createAdminClient();
-  const { data: schedule, error: scheduleError } = await supabase.from("jadwal").select("id,kelas_id,bank_soal_id,waktu_mulai,durasi_menit,randomisasi_urutan_soal,status,token!inner(kode_token,status),bank_soal(soal(id,nomor))").eq("id", body.jadwalId).eq("token.kode_token", String(body.token).toUpperCase()).eq("token.status", "aktif").maybeSingle();
+  let { data: schedule, error: scheduleError } = await supabase.from("jadwal").select("id,kelas_id,bank_soal_id,waktu_mulai,durasi_menit,randomisasi_urutan_soal,status,jadwal_kelas(kelas_id),token!inner(kode_token,status),bank_soal(soal(id,nomor))").eq("id", body.jadwalId).eq("token.kode_token", String(body.token).toUpperCase()).eq("token.status", "aktif").maybeSingle();
+  if (scheduleError && isMissingTableError(scheduleError)) {
+    ({ data: schedule, error: scheduleError } = await supabase.from("jadwal").select("id,kelas_id,bank_soal_id,waktu_mulai,durasi_menit,randomisasi_urutan_soal,status,token!inner(kode_token,status),bank_soal(soal(id,nomor))").eq("id", body.jadwalId).eq("token.kode_token", String(body.token).toUpperCase()).eq("token.status", "aktif").maybeSingle());
+  }
   if (scheduleError || !schedule) return NextResponse.json({ error: "Token tidak valid atau sudah kedaluwarsa." }, { status: 401 });
   if (!(["siap", "berlangsung"] as string[]).includes(schedule.status)) return NextResponse.json({ error: "Jadwal belum dapat dimulai." }, { status: 409 });
   const { data: student } = await supabase.from("siswa").select("kelas_id").eq("id", auth.session.id).single();
-  if (!student || student.kelas_id !== schedule.kelas_id) return NextResponse.json({ error: "Jadwal bukan untuk kelasmu." }, { status: 403 });
+  const allowedClassIds = new Set([schedule.kelas_id, ...(schedule.jadwal_kelas || []).map((item: { kelas_id: string }) => item.kelas_id)]);
+  if (!student || !allowedClassIds.has(student.kelas_id)) return NextResponse.json({ error: "Jadwal bukan untuk kelasmu." }, { status: 403 });
   const { data: previous } = await supabase.from("sesi_ujian").select("id,status,attempt_ke").eq("siswa_id", auth.session.id).eq("jadwal_id", body.jadwalId).order("attempt_ke", { ascending: false }).limit(1).maybeSingle();
   if (previous) return NextResponse.json({ error: "Kamu sudah memiliki sesi untuk jadwal ini. Hubungi admin bila perlu melanjutkan atau mengulang." }, { status: 409 });
   const questions = (schedule.bank_soal as { soal?: Array<{ id: string; nomor: number }> } | null)?.soal || [];

@@ -13,5 +13,7 @@ export async function POST(request: Request) {
   if (expireError) return NextResponse.json({ error: expireError.message }, { status: 500 });
   const { data, error } = await supabase.from("token").insert({ jadwal_id: body.jadwalId, kode_token: code, status: "aktif" }).select("id,jadwal_id,kode_token,status,generated_at").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  const { error: scheduleError } = await supabase.from("jadwal").update({ status: "siap" }).eq("id", body.jadwalId).eq("status", "draft");
+  if (scheduleError) return NextResponse.json({ error: scheduleError.message }, { status: 500 });
   return NextResponse.json({ ok: true, token: data });
 }
