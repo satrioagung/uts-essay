@@ -9,6 +9,9 @@ create table if not exists siswa (id uuid primary key default gen_random_uuid(),
 create table if not exists soal (id uuid primary key default gen_random_uuid(), bank_soal_id uuid not null references bank_soal(id) on delete cascade, nomor integer not null, teks_soal text not null, unique(bank_soal_id, nomor));
 do $$ begin create type jadwal_status as enum ('draft', 'siap', 'berlangsung', 'selesai'); exception when duplicate_object then null; end $$;
 create table if not exists jadwal (id uuid primary key default gen_random_uuid(), kelas_id uuid not null references kelas(id), bank_soal_id uuid not null references bank_soal(id), waktu_mulai timestamptz not null, durasi_menit integer not null check (durasi_menit > 0), randomisasi_urutan_soal boolean not null default true, pengaturan_anti_curang jsonb not null default '{"deteksi_pindah_tab": true, "disable_copy_paste": true}', status jadwal_status not null default 'draft', created_at timestamptz default now());
+alter table jadwal add column if not exists waktu_selesai timestamptz;
+create table if not exists jadwal_kelas (jadwal_id uuid not null references jadwal(id) on delete cascade, kelas_id uuid not null references kelas(id) on delete cascade, primary key (jadwal_id, kelas_id));
+create index if not exists jadwal_kelas_kelas_id_idx on jadwal_kelas(kelas_id);
 create table if not exists token (id uuid primary key default gen_random_uuid(), jadwal_id uuid not null references jadwal(id) on delete cascade, kode_token text not null, status text not null default 'aktif' check (status in ('aktif', 'kedaluwarsa')), generated_at timestamptz default now());
 create unique index if not exists one_active_token_per_schedule on token(jadwal_id) where status = 'aktif';
 do $$ begin create type sesi_status as enum ('belum_mulai', 'sedang_mengerjakan', 'terputus', 'selesai'); exception when duplicate_object then null; end $$;
@@ -26,6 +29,7 @@ alter table siswa enable row level security;
 alter table soal enable row level security;
 alter table jadwal enable row level security;
 alter table token enable row level security;
+alter table jadwal_kelas enable row level security;
 
 -- Server routes use the service role and therefore bypass RLS. The policies below
 -- keep direct client access blocked while preserving the option to add claims later.
