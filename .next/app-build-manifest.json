@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/siswa/[[...section]]/page": [
+    "/admin/[[...section]]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/siswa/[[...section]]/page.js"
+      "static/chunks/app/admin/[[...section]]/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -11,15 +11,20 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
+    "/siswa/[[...section]]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/siswa/[[...section]]/page.js"
+    ],
+    "/login/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/login/page.js"
+    ],
     "/siswa/ujian/[sesiId]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/siswa/ujian/[sesiId]/page.js"
-    ],
-    "/admin/[[...section]]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/[[...section]]/page.js"
     ]
   }
 }

@@ -1,14 +1,14 @@
 {
-  "/siswa/[[...section]]/page": "app/siswa/[[...section]]/page.js",
-  "/siswa/ujian/[sesiId]/page": "app/siswa/ujian/[sesiId]/page.js",
-  "/api/autosave/route": "app/api/autosave/route.js",
   "/admin/[[...section]]/page": "app/admin/[[...section]]/page.js",
+  "/login/page": "app/login/page.js",
+  "/siswa/ujian/[sesiId]/page": "app/siswa/ujian/[sesiId]/page.js",
+  "/siswa/[[...section]]/page": "app/siswa/[[...section]]/page.js",
+  "/api/admin/monitor/route": "app/api/admin/monitor/route.js",
+  "/api/autosave/route": "app/api/autosave/route.js",
+  "/api/siswa/sesi/[sesiId]/heartbeat/route": "app/api/siswa/sesi/[sesiId]/heartbeat/route.js",
+  "/api/siswa/sesi/[sesiId]/submit/route": "app/api/siswa/sesi/[sesiId]/submit/route.js",
+  "/api/sesi/reset/route": "app/api/sesi/reset/route.js",
   "/api/auth/me/route": "app/api/auth/me/route.js",
   "/api/admin/summary/route": "app/api/admin/summary/route.js",
-  "/api/admin/monitor/route": "app/api/admin/monitor/route.js",
-  "/api/siswa/sesi/[sesiId]/route": "app/api/siswa/sesi/[sesiId]/route.js",
-  "/api/siswa/sesi/[sesiId]/submit/route": "app/api/siswa/sesi/[sesiId]/submit/route.js",
-  "/api/siswa/sesi/[sesiId]/heartbeat/route": "app/api/siswa/sesi/[sesiId]/heartbeat/route.js",
-  "/api/sesi/reset/route": "app/api/sesi/reset/route.js",
   "/api/siswa/hasil/route": "app/api/siswa/hasil/route.js"
 }

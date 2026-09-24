@@ -6,10 +6,15 @@ export async function POST(request: Request) {
   const auth = await requireRole("admin");
   if ("response" in auth) return auth.response;
   const body = await request.json().catch(() => ({}));
-  if (!body.sesiUjianId || !["lanjutkan", "mengulang"].includes(body.mode)) return NextResponse.json({ error: "sesiUjianId dan mode reset wajib diisi." }, { status: 400 });
+  if (!body.sesiUjianId || !["lanjutkan", "mengulang", "paksa_selesai"].includes(body.mode)) return NextResponse.json({ error: "sesiUjianId dan mode reset wajib diisi." }, { status: 400 });
   const supabase = createAdminClient();
   if (body.mode === "lanjutkan") {
-    const { data, error } = await supabase.from("sesi_ujian").update({ status: "sedang_mengerjakan", updated_at: new Date().toISOString() }).eq("id", body.sesiUjianId).select("id,status,attempt_ke").single();
+    const { data, error } = await supabase.from("sesi_ujian").update({ status: "sedang_mengerjakan", jumlah_pelanggaran: 0, updated_at: new Date().toISOString() }).eq("id", body.sesiUjianId).select("id,status,attempt_ke,jumlah_pelanggaran").single();
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ ok: true, data });
+  }
+  if (body.mode === "paksa_selesai") {
+    const { data, error } = await supabase.from("sesi_ujian").update({ status: "selesai", waktu_selesai_sesi: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", body.sesiUjianId).select("id,status,attempt_ke").single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ ok: true, data });
   }
