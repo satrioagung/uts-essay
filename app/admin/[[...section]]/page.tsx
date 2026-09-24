@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { LiveManagementPage } from "@/components/admin/management";
+import { LiveDashboard } from "@/components/admin/live-dashboard";
 
 type Section = "dashboard" | "jadwal" | "siswa" | "bank-soal" | "kelas" | "mapel";
 type Status = "sedang mengerjakan" | "belum mulai" | "selesai" | "terputus";
@@ -61,7 +63,7 @@ export default function AdminPage() {
     {mobileOpen && <button aria-label="Tutup menu" onClick={() => setMobileOpen(false)} className="fixed inset-0 z-20 bg-ink/30 lg:hidden" />}
     <div className="lg:pl-[248px]">
       <header className="sticky top-0 z-10 flex h-[72px] items-center justify-between border-b border-line bg-white/90 px-5 backdrop-blur-md sm:px-8"><div className="flex items-center gap-3"><button onClick={() => setMobileOpen(true)} className="text-muted lg:hidden"><Menu size={21} /></button><div><p className="text-[11px] font-bold uppercase tracking-[.15em] text-muted">Selasa, 24 September 2024</p><h1 className="mt-0.5 text-lg font-bold text-ink">{active === "dashboard" ? "Selamat pagi, Rizky" : nav.find(n => n.id === active)?.label}</h1></div></div><div className="flex items-center gap-2"><button className="relative grid h-9 w-9 place-items-center rounded-lg text-muted hover:bg-canvas"><Bell size={18} /><span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-danger" /></button><div className="mx-1 h-5 w-px bg-line" /><button className="hidden items-center gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-canvas sm:flex"><div className="grid h-8 w-8 place-items-center rounded-full bg-[#ffe6ca] text-[10px] font-bold text-[#a96410]">AR</div><ChevronDown size={14} className="text-muted" /></button></div></header>
-      <main className="mx-auto max-w-[1400px] p-5 sm:p-8">{active === "dashboard" ? <Dashboard /> : <ManagementPage section={active} />}</main>
+      <main className="mx-auto max-w-[1400px] p-5 sm:p-8">{active === "dashboard" ? <LiveDashboard /> : <LiveManagementPage section={active} />}</main>
     </div>
   </div>;
 }

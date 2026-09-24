@@ -11,10 +11,15 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ role, identifier, password }) });
+    setError(""); setLoading(true);
+    const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ role, identifier, password }) });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) { setError(result.error || "Login gagal."); setLoading(false); return; }
     if (typeof window !== "undefined") localStorage.setItem("essayspace-role", role);
     router.push(role === "admin" ? "/admin/dashboard" : "/siswa/jadwal");
   }
@@ -43,10 +48,11 @@ export default function LoginPage() {
             <label className="block"><span className="mb-2 block text-xs font-bold text-ink">{role === "admin" ? "Username" : "No. Ujian"}</span><div className="relative"><UserRound className="absolute left-3 top-3 text-muted" size={17} /><input required value={identifier} onChange={e => setIdentifier(e.target.value)} placeholder={role === "admin" ? "Masukkan username" : "Contoh: u01810001"} className="h-11 w-full rounded-lg border border-line bg-white pl-10 pr-3 text-sm outline-none transition placeholder:text-[#aeb5c2] focus:border-brand focus:ring-4 focus:ring-brand/10" /></div></label>
             <label className="block"><span className="mb-2 block text-xs font-bold text-ink">Password</span><div className="relative"><LockKeyhole className="absolute left-3 top-3 text-muted" size={17} /><input required value={password} onChange={e => setPassword(e.target.value)} type={showPassword ? "text" : "password"} placeholder={role === "admin" ? "Masukkan password" : "6 karakter"} className="h-11 w-full rounded-lg border border-line bg-white pl-10 pr-11 text-sm outline-none transition placeholder:text-[#aeb5c2] focus:border-brand focus:ring-4 focus:ring-brand/10" /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3 text-muted hover:text-ink">{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button></div></label>
             <div className="flex items-center justify-between pt-1"><label className="flex items-center gap-2 text-xs text-muted"><input type="checkbox" className="accent-brand" /> Ingat saya</label>{role === "admin" && <button type="button" className="text-xs font-bold text-brand">Lupa password?</button>}</div>
-            <Button type="submit" size="lg" className="mt-2 w-full">Masuk ke dashboard <ArrowRight size={17} /></Button>
+            {error && <p className="rounded-lg bg-danger-soft px-3 py-2 text-xs font-semibold text-danger">{error}</p>}
+            <Button type="submit" size="lg" className="mt-2 w-full" disabled={loading}>{loading ? "Memeriksa akun..." : "Masuk ke dashboard"} {!loading && <ArrowRight size={17} />}</Button>
           </form>
           {role === "siswa" && <div className="mt-7 flex gap-3 rounded-xl border border-[#dedcff] bg-brand-soft p-4 text-xs leading-5 text-[#5b57ad]"><KeyRound className="mt-0.5 shrink-0" size={16} /><span>Nomor ujian dan password diberikan oleh admin sekolah. Hubungi admin jika mengalami kendala.</span></div>}
-          {role === "admin" && <p className="mt-8 text-center text-xs text-muted">Demo: isi sembarang username dan password untuk melanjutkan.</p>}
+          {role === "admin" && <p className="mt-8 text-center text-xs text-muted">Login awal setelah menjalankan schema: admin / admin123.</p>}
         </div>
       </section>
     </main>
