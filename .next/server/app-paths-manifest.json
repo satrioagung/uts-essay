@@ -1,1 +1,13 @@
-{}
+{
+  "/api/auth/me/route": "app/api/auth/me/route.js",
+  "/api/admin/summary/route": "app/api/admin/summary/route.js",
+  "/admin/[[...section]]/page": "app/admin/[[...section]]/page.js",
+  "/api/admin/[resource]/route": "app/api/admin/[resource]/route.js",
+  "/siswa/[[...section]]/page": "app/siswa/[[...section]]/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/api/siswa/jadwal/route": "app/api/siswa/jadwal/route.js",
+  "/api/token/generate/route": "app/api/token/generate/route.js",
+  "/api/siswa/hasil/route": "app/api/siswa/hasil/route.js",
+  "/api/auth/logout/route": "app/api/auth/logout/route.js",
+  "/login/page": "app/login/page.js"
+}

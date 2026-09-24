@@ -7,3 +7,5 @@ create table if not exists jadwal_kelas (
 
 create index if not exists jadwal_kelas_kelas_id_idx on jadwal_kelas(kelas_id);
 alter table jadwal_kelas enable row level security;
+
+notify pgrst, 'reload schema';

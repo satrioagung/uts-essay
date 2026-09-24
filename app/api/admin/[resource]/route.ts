@@ -33,12 +33,12 @@ export async function GET(_: Request, { params }: { params: { resource: string }
       : resource === "bank-soal" ? supabase.from("bank_soal").select("id,nama_bank_soal,mapel_id,created_at,mapel(nama_mapel),soal(count)").order("created_at", { ascending: false })
       : resource === "soal" ? (() => { const questionQuery = supabase.from("soal").select("id,bank_soal_id,nomor,teks_soal,bank_soal(nama_bank_soal)"); const bankSoalId = new URL(_.url).searchParams.get("bankSoalId"); return bankSoalId ? questionQuery.eq("bank_soal_id", bankSoalId).order("nomor") : questionQuery.order("nomor"); })()
       : resource === "siswa" ? supabase.from("siswa").select(`id,no_ujian,nama,kelas_id,created_at,kelas(nama_kelas)${new URL(_.url).searchParams.get("includeCredentials") === "true" ? ",password" : ""}`).order("nama")
-      : supabase.from("jadwal").select("id,kelas_id,bank_soal_id,waktu_mulai,waktu_selesai,durasi_menit,randomisasi_urutan_soal,pengaturan_anti_curang,status,created_at,kelas(nama_kelas),jadwal_kelas(kelas(id,nama_kelas)),bank_soal(nama_bank_soal,mapel(nama_mapel)),token(kode_token,status)").order("waktu_mulai", { ascending: true });
+      : supabase.from("jadwal").select("id,kelas_id,bank_soal_id,waktu_mulai,waktu_selesai,durasi_menit,randomisasi_urutan_soal,pengaturan_anti_curang,status,created_at,kelas!jadwal_kelas_id_fkey(nama_kelas),jadwal_kelas(kelas!jadwal_kelas_kelas_id_fkey(id,nama_kelas)),bank_soal(nama_bank_soal,mapel(nama_mapel)),token(kode_token,status)").order("waktu_mulai", { ascending: true });
     let data: any;
     let error: any;
     ({ data, error } = await query);
     if (error && resource === "jadwal") {
-      ({ data, error } = await supabase.from("jadwal").select("id,kelas_id,bank_soal_id,waktu_mulai,durasi_menit,randomisasi_urutan_soal,pengaturan_anti_curang,status,created_at,kelas(nama_kelas),bank_soal(nama_bank_soal,mapel(nama_mapel)),token(kode_token,status)").order("waktu_mulai", { ascending: true }));
+      ({ data, error } = await supabase.from("jadwal").select("id,kelas_id,bank_soal_id,waktu_mulai,durasi_menit,randomisasi_urutan_soal,pengaturan_anti_curang,status,created_at,kelas!jadwal_kelas_id_fkey(nama_kelas),bank_soal(nama_bank_soal,mapel(nama_mapel)),token(kode_token,status)").order("waktu_mulai", { ascending: true }));
     }
     if (error && resource === "soal") {
       let simpleQuestionQuery = supabase.from("soal").select("id,bank_soal_id,nomor,teks_soal");
@@ -147,7 +147,7 @@ export async function DELETE(request: Request, { params }: { params: { resource:
   const supabase = createAdminClient();
   if (resource === "jadwal") {
     const force = new URL(request.url).searchParams.get("force") === "true";
-    const { data: schedule, error: scheduleError } = await supabase.from("jadwal").select("id,status,kelas(nama_kelas)").eq("id", id).maybeSingle();
+    const { data: schedule, error: scheduleError } = await supabase.from("jadwal").select("id,status,kelas!jadwal_kelas_id_fkey(nama_kelas)").eq("id", id).maybeSingle();
     if (scheduleError) return NextResponse.json({ error: scheduleError.message }, { status: 500 });
     if (!schedule) return NextResponse.json({ error: "Jadwal tidak ditemukan." }, { status: 404 });
     const { data: sessions, error: sessionReadError } = await supabase.from("sesi_ujian").select("id,status").eq("jadwal_id", id);
@@ -170,7 +170,7 @@ export async function DELETE(request: Request, { params }: { params: { resource:
     if (classesError && !isMissingTableError(classesError)) return NextResponse.json({ error: classesError.message }, { status: 500 });
   }
   if (resource === "bank-soal") {
-    const { data: schedules, error: scheduleError } = await supabase.from("jadwal").select("id,status,kelas(nama_kelas)").eq("bank_soal_id", id).order("waktu_mulai", { ascending: true });
+    const { data: schedules, error: scheduleError } = await supabase.from("jadwal").select("id,status,kelas!jadwal_kelas_id_fkey(nama_kelas)").eq("bank_soal_id", id).order("waktu_mulai", { ascending: true });
     if (scheduleError) return NextResponse.json({ error: scheduleError.message }, { status: 500 });
     const force = new URL(request.url).searchParams.get("force") === "true";
     if ((schedules || []).length > 0 && !force) return NextResponse.json({ code: "BANK_SOAL_IN_USE", error: "Bank soal masih digunakan oleh jadwal ujian.", schedules }, { status: 409 });
