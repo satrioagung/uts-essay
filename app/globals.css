@@ -12,8 +12,35 @@ button { cursor: pointer; }
 ::selection { background: #dcd9ff; }
 
 @media print {
-  body { background: white; }
+  @page { size: A4 portrait; margin: 0; }
+  @page f4 { size: 215.9mm 330.2mm; margin: 0; }
+  html, body { margin: 0 !important; padding: 0 !important; background: white !important; }
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: absolute; left: 0; top: 0; width: 100%; }
   .print-hidden { display: none !important; }
   .print-area { display: block; }
-  .exam-card { page-break-after: always; box-shadow: none !important; margin: 0 auto 24px; }
+  .paper-f4 { page: f4; }
+  .print-sheet { width: 210mm; height: 297mm; padding: 12mm 10mm; page-break-after: always; overflow: hidden; }
+  .paper-f4 .print-sheet { width: 215.9mm; height: 330.2mm; padding: 12mm 10mm; }
+  .print-grid { display: grid; grid-template-columns: repeat(2, 85.6mm); grid-auto-rows: 53.98mm; gap: 5mm 8mm; align-content: start; justify-content: center; }
+  .exam-card { width: 85.6mm; height: 53.98mm; overflow: hidden; border-width: .35mm; box-shadow: none !important; page-break-inside: avoid; }
+  .exam-card-header { border-bottom: .3mm solid #172033; padding: 2.7mm 2.5mm 1.8mm; text-align: center; font-size: 6.5pt; line-height: 1.2; font-weight: 700; text-transform: uppercase; }
+  .exam-card-header p:nth-child(2) { margin-top: .6mm; font-size: 7.5pt; font-weight: 800; }
+  .exam-card-header p:nth-child(3) { margin-top: .5mm; font-size: 6.5pt; letter-spacing: .35mm; }
+  .exam-card-body { padding: 2.5mm 3.5mm 1.5mm; font-size: 7.5pt; line-height: 1.45; }
+  .exam-card-row { display: grid; grid-template-columns: 30mm 1fr; gap: 1mm; }
+  .exam-card-footer { display: flex; justify-content: space-between; border-top: .2mm dashed #77839a; margin: 0 3.5mm; padding-top: 1.2mm; color: #77839a; font-size: 5.5pt; }
 }
+
+.print-area { display: flex; flex-direction: column; gap: 24px; align-items: center; }
+.print-sheet { background: white; border: 1px solid #e8ebf0; padding: 24px; width: min(100%, 820px); }
+.print-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.exam-card { aspect-ratio: 85.6 / 53.98; overflow: hidden; }
+.exam-card-header { border-bottom: 2px solid #172033; padding: 10px 8px 7px; text-align: center; font-size: 8px; line-height: 1.15; font-weight: 700; text-transform: uppercase; }
+.exam-card-header p:nth-child(2) { margin-top: 3px; font-size: 10px; font-weight: 800; }
+.exam-card-header p:nth-child(3) { margin-top: 2px; font-size: 8px; letter-spacing: 1px; }
+.exam-card-body { padding: 10px 13px 6px; font-size: 10px; line-height: 1.45; }
+.exam-card-row { display: grid; grid-template-columns: 112px 1fr; gap: 4px; }
+.exam-card-footer { display: flex; justify-content: space-between; border-top: 1px dashed #77839a; margin: 0 13px; padding-top: 5px; color: #77839a; font-size: 8px; }
+.print-page-label { margin: 10px 0 0; text-align: center; font-size: 11px; color: #77839a; }
