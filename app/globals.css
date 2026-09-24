@@ -10,3 +10,10 @@ button { cursor: pointer; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { scrollbar-width: none; }
 ::selection { background: #dcd9ff; }
+
+@media print {
+  body { background: white; }
+  .print-hidden { display: none !important; }
+  .print-area { display: block; }
+  .exam-card { page-break-after: always; box-shadow: none !important; margin: 0 auto 24px; }
+}

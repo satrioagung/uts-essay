@@ -16,7 +16,7 @@ export async function GET(_: Request, { params }: { params: { resource: string }
       : resource === "kelas" ? supabase.from("kelas").select("id,nama_kelas,created_at").order("nama_kelas")
       : resource === "bank-soal" ? supabase.from("bank_soal").select("id,nama_bank_soal,mapel_id,created_at,mapel(nama_mapel),soal(count)").order("created_at", { ascending: false })
       : resource === "soal" ? supabase.from("soal").select("id,bank_soal_id,nomor,teks_soal,created_at,bank_soal(nama_bank_soal)").order("nomor")
-      : resource === "siswa" ? supabase.from("siswa").select("id,no_ujian,nama,kelas_id,created_at,kelas(nama_kelas)").order("nama")
+      : resource === "siswa" ? supabase.from("siswa").select(`id,no_ujian,nama,kelas_id,created_at,kelas(nama_kelas)${new URL(_.url).searchParams.get("includeCredentials") === "true" ? ",password" : ""}`).order("nama")
       : supabase.from("jadwal").select("id,kelas_id,bank_soal_id,waktu_mulai,durasi_menit,randomisasi_urutan_soal,pengaturan_anti_curang,status,created_at,kelas(nama_kelas),bank_soal(nama_bank_soal,mapel(nama_mapel))").order("waktu_mulai", { ascending: true });
     const { data, error } = await query;
     if (error) throw error;

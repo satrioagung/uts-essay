@@ -1,17 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Activity, AlertTriangle, ArrowDownToLine, ArrowUpFromLine, Bell, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, CircleHelp, FileSpreadsheet, Filter, GraduationCap, LayoutDashboard, Menu, MoreHorizontal, Plus, RefreshCw, Search, Settings, ShieldCheck, Sparkles, Users, X } from "lucide-react";
+import { Activity, AlertTriangle, ArrowDownToLine, ArrowUpFromLine, Bell, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, CircleHelp, FileSpreadsheet, Filter, GraduationCap, LayoutDashboard, Menu, MoreHorizontal, Plus, Printer, RefreshCw, Search, Settings, ShieldCheck, Sparkles, Users, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { LiveManagementPage } from "@/components/admin/management";
 import { LiveDashboard } from "@/components/admin/live-dashboard";
+import { ExamCardsPage } from "@/components/admin/exam-cards";
 
-type Section = "dashboard" | "jadwal" | "siswa" | "bank-soal" | "kelas" | "mapel";
+type Section = "dashboard" | "jadwal" | "siswa" | "bank-soal" | "kelas" | "mapel" | "kartu-ujian";
 type Status = "sedang mengerjakan" | "belum mulai" | "selesai" | "terputus";
 
 const nav = [
@@ -21,6 +22,7 @@ const nav = [
   { id: "bank-soal", label: "Bank Soal", icon: BookOpen },
   { id: "kelas", label: "Kelas", icon: GraduationCap },
   { id: "mapel", label: "Mata Pelajaran", icon: FileSpreadsheet },
+  { id: "kartu-ujian", label: "Kartu Ujian", icon: Printer },
 ] as const;
 
 const schedules = [
@@ -47,23 +49,27 @@ export default function AdminPage() {
   const section = ((params?.section?.[0] || "dashboard") as Section);
   const active: Section = nav.some(item => item.id === section) ? section : "dashboard";
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profile, setProfile] = useState<{ username?: string }>({});
+  const [scheduleCount, setScheduleCount] = useState(0);
+  const today = new Intl.DateTimeFormat("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date());
+  useEffect(() => { Promise.all([fetch("/api/auth/me", { cache: "no-store" }), fetch("/api/admin/summary", { cache: "no-store" })]).then(async ([profileResponse, summaryResponse]) => { const profileResult = await profileResponse.json(); const summaryResult = await summaryResponse.json(); if (profileResponse.ok) setProfile(profileResult.profile || {}); if (summaryResponse.ok) setScheduleCount(summaryResult.counts?.jadwal || 0); }); }, []);
+  async function logout() { await fetch("/api/auth/logout", { method: "POST" }); window.location.href = "/login"; }
 
   return <div className="min-h-screen bg-canvas">
     <aside className={cn("fixed inset-y-0 left-0 z-30 flex w-[248px] flex-col border-r border-line bg-white px-4 py-6 transition-transform lg:translate-x-0", mobileOpen ? "translate-x-0" : "-translate-x-full")}>
       <div className="px-2"><Logo /></div>
       <div className="mt-11 px-2 text-[10px] font-extrabold uppercase tracking-[.18em] text-[#adb4c2]">Menu utama</div>
       <nav className="mt-3 space-y-1">
-        {nav.map(item => { const Icon = item.icon; return <Link key={item.id} href={`/admin/${item.id}`} onClick={() => setMobileOpen(false)} className={cn("flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition", active === item.id ? "bg-brand-soft text-brand" : "text-muted hover:bg-canvas hover:text-ink")}><Icon size={17} strokeWidth={active === item.id ? 2.5 : 2} /><span className="flex-1">{item.label}</span>{"count" in item && item.count && <span className="rounded bg-brand px-1.5 py-0.5 text-[10px] font-bold text-white">{item.count}</span>}</Link> })}
+        {nav.map(item => { const Icon = item.icon; return <Link key={item.id} href={`/admin/${item.id}`} onClick={() => setMobileOpen(false)} className={cn("flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition", active === item.id ? "bg-brand-soft text-brand" : "text-muted hover:bg-canvas hover:text-ink")}><Icon size={17} strokeWidth={active === item.id ? 2.5 : 2} /><span className="flex-1">{item.label}</span>{item.id === "jadwal" && <span className="rounded bg-brand px-1.5 py-0.5 text-[10px] font-bold text-white">{scheduleCount}</span>}</Link> })}
       </nav>
       <div className="mt-auto space-y-1">
-        <Link href="/admin/pengaturan" className="flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-semibold text-muted hover:bg-canvas hover:text-ink"><Settings size={17} /> Pengaturan</Link>
-        <div className="mt-5 flex items-center gap-3 border-t border-line px-2 pt-5"><div className="grid h-9 w-9 place-items-center rounded-full bg-[#ffe6ca] text-xs font-bold text-[#a96410]">AR</div><div className="min-w-0 flex-1"><p className="truncate text-xs font-bold text-ink">Admin Rizky</p><p className="text-[11px] text-muted">Administrator</p></div><ChevronDown size={14} className="text-muted" /></div>
+        <div className="mt-5 flex items-center gap-3 border-t border-line px-2 pt-5"><div className="grid h-9 w-9 place-items-center rounded-full bg-[#ffe6ca] text-xs font-bold text-[#a96410]">{(profile.username || "AD").slice(0, 2).toUpperCase()}</div><div className="min-w-0 flex-1"><p className="truncate text-xs font-bold text-ink">{profile.username || "Admin"}</p><p className="text-[11px] text-muted">Administrator</p></div><button onClick={() => void logout()} title="Logout" className="text-muted hover:text-danger"><ChevronDown size={14} className="rotate-90" /></button></div>
       </div>
     </aside>
     {mobileOpen && <button aria-label="Tutup menu" onClick={() => setMobileOpen(false)} className="fixed inset-0 z-20 bg-ink/30 lg:hidden" />}
     <div className="lg:pl-[248px]">
-      <header className="sticky top-0 z-10 flex h-[72px] items-center justify-between border-b border-line bg-white/90 px-5 backdrop-blur-md sm:px-8"><div className="flex items-center gap-3"><button onClick={() => setMobileOpen(true)} className="text-muted lg:hidden"><Menu size={21} /></button><div><p className="text-[11px] font-bold uppercase tracking-[.15em] text-muted">Selasa, 24 September 2024</p><h1 className="mt-0.5 text-lg font-bold text-ink">{active === "dashboard" ? "Selamat pagi, Rizky" : nav.find(n => n.id === active)?.label}</h1></div></div><div className="flex items-center gap-2"><button className="relative grid h-9 w-9 place-items-center rounded-lg text-muted hover:bg-canvas"><Bell size={18} /><span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-danger" /></button><div className="mx-1 h-5 w-px bg-line" /><button className="hidden items-center gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-canvas sm:flex"><div className="grid h-8 w-8 place-items-center rounded-full bg-[#ffe6ca] text-[10px] font-bold text-[#a96410]">AR</div><ChevronDown size={14} className="text-muted" /></button></div></header>
-      <main className="mx-auto max-w-[1400px] p-5 sm:p-8">{active === "dashboard" ? <LiveDashboard /> : <LiveManagementPage section={active} />}</main>
+      <header className="sticky top-0 z-10 flex h-[72px] items-center justify-between border-b border-line bg-white/90 px-5 backdrop-blur-md sm:px-8"><div className="flex items-center gap-3"><button onClick={() => setMobileOpen(true)} className="text-muted lg:hidden"><Menu size={21} /></button><div><p className="text-[11px] font-bold uppercase tracking-[.15em] text-muted">{today}</p><h1 className="mt-0.5 text-lg font-bold text-ink">{active === "dashboard" ? `Selamat pagi, ${profile.username || "Admin"}` : nav.find(n => n.id === active)?.label}</h1></div></div><div className="flex items-center gap-2"><div className="hidden items-center gap-2 sm:flex"><div className="grid h-8 w-8 place-items-center rounded-full bg-[#ffe6ca] text-[10px] font-bold text-[#a96410]">{(profile.username || "AD").slice(0, 2).toUpperCase()}</div><span className="text-xs font-bold text-ink">{profile.username || "Admin"}</span></div><button onClick={() => void logout()} className="rounded-lg px-2 py-1.5 text-xs font-semibold text-muted hover:bg-danger-soft hover:text-danger">Logout</button></div></header>
+      <main className="mx-auto max-w-[1400px] p-5 sm:p-8">{active === "dashboard" ? <LiveDashboard /> : active === "kartu-ujian" ? <ExamCardsPage /> : <LiveManagementPage section={active} />}</main>
     </div>
   </div>;
 }
@@ -90,7 +96,7 @@ function ManagementPage({ section }: { section: Section }) {
   const [showImport, setShowImport] = useState(false);
   const [toast, setToast] = useState("");
   const title = nav.find(n => n.id === section)?.label || "Manajemen";
-  const description = { dashboard: "Kelola aktivitas ujian sekolah.", jadwal: "Atur waktu dan peserta ujian essay.", siswa: "Kelola akun dan akses peserta ujian.", "bank-soal": "Susun dan kelola bank soal essay.", kelas: "Kelola rombongan belajar sekolah.", mapel: "Kelola mata pelajaran dan kode bank soal." }[section] || "Kelola data operasional aplikasi.";
+  const description = { dashboard: "Kelola aktivitas ujian sekolah.", jadwal: "Atur waktu dan peserta ujian essay.", siswa: "Kelola akun dan akses peserta ujian.", "bank-soal": "Susun dan kelola bank soal essay.", kelas: "Kelola rombongan belajar sekolah.", mapel: "Kelola mata pelajaran dan kode bank soal.", "kartu-ujian": "Cetak kartu peserta ujian." }[section] || "Kelola data operasional aplikasi.";
   const rows = section === "siswa" ? students.map((s, i) => ({ primary: s.name, secondary: s.no, extra: s.className, badge: s.status, meta: s.last, initials: s.name.split(" ").map(x => x[0]).join("") })) : section === "jadwal" ? schedules.map(s => ({ primary: s.subject, secondary: s.code, extra: s.className, badge: s.status, meta: `${s.date} · ${s.time}`, initials: s.code.slice(0, 2) })) : section === "bank-soal" ? [{ primary: "Matematika Dasar", secondary: "MTK10", extra: "Matematika", badge: "24 soal", meta: "Diperbarui 2 hari lalu", initials: "MT" }, { primary: "Bahasa Indonesia", secondary: "BIND10", extra: "Bahasa Indonesia", badge: "18 soal", meta: "Diperbarui 5 hari lalu", initials: "BI" }, { primary: "Pemrograman Dasar", secondary: "PD10", extra: "Produktif", badge: "32 soal", meta: "Diperbarui 1 minggu lalu", initials: "PD" }] : section === "kelas" ? [{ primary: "X TKJ 1", secondary: "TKJ-01", extra: "Teknik Komputer & Jaringan", badge: "32 siswa", meta: "Wali kelas: Pak Dimas", initials: "T1" }, { primary: "X TKJ 2", secondary: "TKJ-02", extra: "Teknik Komputer & Jaringan", badge: "30 siswa", meta: "Wali kelas: Bu Rina", initials: "T2" }, { primary: "X RPL 1", secondary: "RPL-01", extra: "Rekayasa Perangkat Lunak", badge: "28 siswa", meta: "Wali kelas: Pak Arif", initials: "R1" }] : [{ primary: "Matematika", secondary: "MTK", extra: "3 bank soal", badge: "Aktif", meta: "Terakhir diubah hari ini", initials: "M" }, { primary: "Bahasa Indonesia", secondary: "BIND", extra: "2 bank soal", badge: "Aktif", meta: "Terakhir diubah 3 hari lalu", initials: "BI" }, { primary: "Pemrograman Dasar", secondary: "PD", extra: "1 bank soal", badge: "Aktif", meta: "Terakhir diubah 1 minggu lalu", initials: "P" }];
   const filtered = rows.filter(r => `${r.primary} ${r.secondary} ${r.extra}`.toLowerCase().includes(query.toLowerCase()));
   function notify(message: string) { setToast(message); setTimeout(() => setToast(""), 2800); }
