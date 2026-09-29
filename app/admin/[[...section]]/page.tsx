@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Activity, AlertTriangle, ArrowDownToLine, ArrowUpFromLine, Bell, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, CircleHelp, FileSpreadsheet, Filter, GraduationCap, LayoutDashboard, Menu, MoreHorizontal, Plus, Printer, RefreshCw, Search, Settings, ShieldCheck, Sparkles, Users, X } from "lucide-react";
+import { Activity, AlertTriangle, ArrowDownToLine, ArrowUpFromLine, Bell, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, CircleHelp, FileSpreadsheet, Filter, GraduationCap, LayoutDashboard, Menu, MoreHorizontal, NotebookPen, Plus, Printer, RefreshCw, Search, Settings, ShieldCheck, Sparkles, Users, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,7 +43,7 @@ function StatusBadge({ status }: { status: string }) {
   return <Badge tone={tone}>{status}</Badge>;
 }
 
-function Logo() { return <div className="flex items-center gap-2.5 text-[17px] font-extrabold tracking-tight text-ink"><div className="grid h-8 w-8 place-items-center rounded-[10px] bg-brand text-white"><Sparkles size={16} /></div>EssaySpace</div>; }
+function Logo() { return <div className="flex items-center gap-2.5 text-[17px] font-extrabold tracking-tight text-ink"><div className="grid h-8 w-8 place-items-center rounded-[10px] bg-brand text-white"><NotebookPen size={16} /></div>UTS App</div>; }
 
 export default function AdminPage() {
   const params = useParams<{ section?: string[] }>();

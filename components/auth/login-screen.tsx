@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Eye, EyeOff, KeyRound, LockKeyhole, Sparkles, UserRound } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, KeyRound, LockKeyhole, NotebookPen, Sparkles, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function LoginScreen({ fixedRole }: { fixedRole: "admin" | "siswa" }) {
@@ -30,14 +30,14 @@ export function LoginScreen({ fixedRole }: { fixedRole: "admin" | "siswa" }) {
       <section className="relative hidden overflow-hidden bg-[#24294a] p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <div className="absolute -left-20 -top-24 h-80 w-80 rounded-full bg-brand/30 blur-3xl" />
         <div className="absolute -bottom-20 right-0 h-96 w-96 rounded-full bg-[#8e89ff]/20 blur-3xl" />
-        <div className="relative z-10 flex items-center gap-3 font-bold tracking-tight"><div className="grid h-9 w-9 place-items-center rounded-xl bg-white text-brand"><Sparkles size={18} /></div> EssaySpace</div>
+        <div className="relative z-10 flex items-center gap-3 font-bold tracking-tight"><div className="grid h-9 w-9 place-items-center rounded-xl bg-white text-brand"><NotebookPen size={18} /></div> UTS App</div>
         <div className="relative z-10 max-w-lg pb-10">
-          <p className="mb-5 text-xs font-bold uppercase tracking-[0.22em] text-[#a9adce]">UJIAN ESSAY ONLINE</p>
-          <h1 className="text-5xl font-bold leading-[1.08] tracking-[-0.04em]">Ujian yang tertata.<br /><span className="text-[#9e9aff]">Belajar lebih bermakna.</span></h1>
+          <p className="mb-5 text-xs font-bold uppercase tracking-[0.22em] text-[#a9adce]">UJIAN TENGAH SEMESTER</p>
+          <h1 className="text-5xl font-bold leading-[1.08] tracking-[-0.04em]">SMK Bintang Sembilan<br /><span className="text-[#9e9aff]">Bandar Mataram</span></h1>
           <p className="mt-6 max-w-md text-sm leading-7 text-[#b6bad4]">Kelola soal, jadwal, dan progres ujian essay siswa dalam satu ruang yang sederhana dan terukur.</p>
           <div className="mt-10 flex items-center gap-8 text-xs text-[#b6bad4]"><span>✦ 12 kelas aktif</span><span>✦ 248 siswa</span><span>✦ Realtime</span></div>
         </div>
-        <p className="relative z-10 text-xs text-[#7f85aa]">© 2024 EssaySpace untuk SMK Indonesia</p>
+        <p className="relative z-10 text-xs text-[#7f85aa]">© 2026 UTS App by SMK Bintang Sembilan</p>
       </section>
 
       <section className="flex min-h-screen items-center justify-center p-6 sm:p-10">
@@ -53,7 +53,7 @@ export function LoginScreen({ fixedRole }: { fixedRole: "admin" | "siswa" }) {
             <Button type="submit" size="lg" className="mt-2 w-full" disabled={loading}>{loading ? "Memeriksa akun..." : "Masuk ke dashboard"} {!loading && <ArrowRight size={17} />}</Button>
           </form>
           {role === "siswa" && <div className="mt-7 flex gap-3 rounded-xl border border-[#dedcff] bg-brand-soft p-4 text-xs leading-5 text-[#5b57ad]"><KeyRound className="mt-0.5 shrink-0" size={16} /><span>Nomor ujian dan password diberikan oleh admin sekolah. Hubungi admin jika mengalami kendala.</span></div>}
-          {role === "admin" ? <p className="mt-8 text-center text-xs text-muted">Login awal setelah menjalankan schema: admin / admin123.</p> : <p className="mt-8 text-center text-xs text-muted">Admin? <Link href="/admin/login" className="font-bold text-brand">Masuk lewat portal admin</Link></p>}
+          {role === "admin" ? <p className="mt-8 text-center text-xs text-muted">Login dengan akun administrator</p> : <p className="mt-8 text-center text-xs text-muted">Admin? <Link href="/admin/login" className="font-bold text-brand">Masuk lewat portal admin</Link></p>}
         </div>
       </section>
     </main>
