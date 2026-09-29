@@ -1,6 +1,3 @@
 {
-  "/login/page": "app/login/page.js",
-  "/admin/login/page": "app/admin/login/page.js",
-  "/admin/[[...section]]/page": "app/admin/[[...section]]/page.js",
-  "/siswa/[[...section]]/page": "app/siswa/[[...section]]/page.js"
+  "/login/page": "app/login/page.js"
 }

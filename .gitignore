@@ -1,7 +1,9 @@
 node_modules/
 .next/
 out/
+pnpm-store/
 .env*
 !.env.example
 *.tsbuildinfo
 .DS_Store
+.vercel
