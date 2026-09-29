@@ -1,7 +1,8 @@
 -- EssaySpace schema for Supabase Postgres.
 create extension if not exists pgcrypto;
 
-create table if not exists admin (id uuid primary key default gen_random_uuid(), username text unique not null, password_hash text not null, created_at timestamptz default now());
+create table if not exists admin (id uuid primary key default gen_random_uuid(), nama text not null default 'Administrator', username text unique not null, password_hash text not null, created_at timestamptz default now());
+alter table admin add column if not exists nama text not null default 'Administrator';
 create table if not exists kelas (id uuid primary key default gen_random_uuid(), nama_kelas text unique not null, created_at timestamptz default now());
 create table if not exists mapel (id uuid primary key default gen_random_uuid(), nama_mapel text unique not null, created_at timestamptz default now());
 create table if not exists bank_soal (id uuid primary key default gen_random_uuid(), mapel_id uuid not null references mapel(id) on delete cascade, nama_bank_soal text not null, created_at timestamptz default now(), unique(mapel_id, nama_bank_soal));

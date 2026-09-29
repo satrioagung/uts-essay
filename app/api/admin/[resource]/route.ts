@@ -10,7 +10,8 @@ function buildSchedulePayload(body: Record<string, any>) {
   const end = body.waktu_selesai || combineLocalDateTime(body.tanggal_selesai, body.jam_selesai);
   const duration = Number(body.durasi_menit) || (start && end ? Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000) : 0);
   const antiCheatEnabled = body.deteksi_curang === undefined ? body.pengaturan_anti_curang?.deteksi_pindah_tab !== false : body.deteksi_curang !== "false";
-  return { kelas_id: getClassIds(body)[0] || body.kelas_id, bank_soal_id: body.bank_soal_id, waktu_mulai: start, waktu_selesai: end, durasi_menit: duration, randomisasi_urutan_soal: body.randomisasi_urutan_soal ?? true, pengaturan_anti_curang: { ...(body.pengaturan_anti_curang || {}), deteksi_pindah_tab: antiCheatEnabled, disable_copy_paste: antiCheatEnabled }, status: body.status || "draft" };
+  const randomizeQuestions = body.acak_soal === undefined ? body.randomisasi_urutan_soal !== false && body.randomisasi_urutan_soal !== "false" : body.acak_soal !== "false";
+  return { kelas_id: getClassIds(body)[0] || body.kelas_id, bank_soal_id: body.bank_soal_id, waktu_mulai: start, waktu_selesai: end, durasi_menit: duration, randomisasi_urutan_soal: randomizeQuestions, pengaturan_anti_curang: { ...(body.pengaturan_anti_curang || {}), deteksi_pindah_tab: antiCheatEnabled, disable_copy_paste: antiCheatEnabled }, status: body.status || "draft" };
 }
 
 function getClassIds(body: Record<string, any>) { return Array.from(new Set((Array.isArray(body.kelas_ids) ? body.kelas_ids : String(body.kelas_ids || body.kelas_id || "").split(",")).map(value => String(value).trim()).filter(Boolean))); }

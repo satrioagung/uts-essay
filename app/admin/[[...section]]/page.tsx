@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { LiveManagementPage } from "@/components/admin/management";
 import { LiveDashboard } from "@/components/admin/live-dashboard";
 import { ExamCardsPage } from "@/components/admin/exam-cards";
+import { AdminProfileModal } from "@/components/admin/admin-profile";
 
 type Section = "dashboard" | "jadwal" | "siswa" | "bank-soal" | "kelas" | "mapel" | "kartu-ujian";
 type Status = "sedang mengerjakan" | "belum mulai" | "selesai" | "terputus";
@@ -49,11 +50,13 @@ export default function AdminPage() {
   const section = ((params?.section?.[0] || "dashboard") as Section);
   const active: Section = nav.some(item => item.id === section) ? section : "dashboard";
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [profile, setProfile] = useState<{ username?: string }>({});
+  const [profile, setProfile] = useState<{ id?: string; nama?: string; username?: string }>({});
+  const [profileOpen, setProfileOpen] = useState(false);
   const [scheduleCount, setScheduleCount] = useState(0);
   const today = new Intl.DateTimeFormat("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date());
+  const profileName = profile.nama || profile.username || "Admin";
   useEffect(() => { Promise.all([fetch("/api/auth/me", { cache: "no-store" }), fetch("/api/admin/summary", { cache: "no-store" })]).then(async ([profileResponse, summaryResponse]) => { const profileResult = await profileResponse.json(); const summaryResult = await summaryResponse.json(); if (profileResponse.ok) setProfile(profileResult.profile || {}); if (summaryResponse.ok) setScheduleCount(summaryResult.counts?.jadwal || 0); }); }, []);
-  async function logout() { await fetch("/api/auth/logout", { method: "POST" }); window.location.href = "/login"; }
+  async function logout() { try { await fetch("/api/auth/logout", { method: "POST" }); } finally { window.location.replace("/admin/login"); } }
 
   return <div className="min-h-screen bg-canvas">
     <aside className={cn("fixed inset-y-0 left-0 z-30 flex w-[248px] flex-col border-r border-line bg-white px-4 py-6 transition-transform lg:translate-x-0", mobileOpen ? "translate-x-0" : "-translate-x-full")}>
@@ -63,14 +66,15 @@ export default function AdminPage() {
         {nav.map(item => { const Icon = item.icon; return <Link key={item.id} href={`/admin/${item.id}`} onClick={() => setMobileOpen(false)} className={cn("flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition", active === item.id ? "bg-brand-soft text-brand" : "text-muted hover:bg-canvas hover:text-ink")}><Icon size={17} strokeWidth={active === item.id ? 2.5 : 2} /><span className="flex-1">{item.label}</span>{item.id === "jadwal" && <span className="rounded bg-brand px-1.5 py-0.5 text-[10px] font-bold text-white">{scheduleCount}</span>}</Link> })}
       </nav>
       <div className="mt-auto space-y-1">
-        <div className="mt-5 flex items-center gap-3 border-t border-line px-2 pt-5"><div className="grid h-9 w-9 place-items-center rounded-full bg-[#ffe6ca] text-xs font-bold text-[#a96410]">{(profile.username || "AD").slice(0, 2).toUpperCase()}</div><div className="min-w-0 flex-1"><p className="truncate text-xs font-bold text-ink">{profile.username || "Admin"}</p><p className="text-[11px] text-muted">Administrator</p></div><button onClick={() => void logout()} title="Logout" className="text-muted hover:text-danger"><ChevronDown size={14} className="rotate-90" /></button></div>
+        <button onClick={() => setProfileOpen(true)} className="mt-5 flex w-full items-center gap-3 border-t border-line px-2 pt-5 text-left"><div className="grid h-9 w-9 place-items-center rounded-full bg-[#ffe6ca] text-xs font-bold text-[#a96410]">{profileName.slice(0, 2).toUpperCase()}</div><div className="min-w-0 flex-1"><p className="truncate text-xs font-bold text-ink">{profileName}</p><p className="text-[11px] text-muted">Administrator · Edit profil</p></div><Settings size={15} className="text-muted" /></button>
       </div>
     </aside>
     {mobileOpen && <button aria-label="Tutup menu" onClick={() => setMobileOpen(false)} className="fixed inset-0 z-20 bg-ink/30 lg:hidden" />}
     <div className="lg:pl-[248px]">
-      <header className="sticky top-0 z-10 flex h-[72px] items-center justify-between border-b border-line bg-white/90 px-5 backdrop-blur-md sm:px-8"><div className="flex items-center gap-3"><button onClick={() => setMobileOpen(true)} className="text-muted lg:hidden"><Menu size={21} /></button><div><p className="text-[11px] font-bold uppercase tracking-[.15em] text-muted">{today}</p><h1 className="mt-0.5 text-lg font-bold text-ink">{active === "dashboard" ? `Selamat pagi, ${profile.username || "Admin"}` : nav.find(n => n.id === active)?.label}</h1></div></div><div className="flex items-center gap-2"><div className="hidden items-center gap-2 sm:flex"><div className="grid h-8 w-8 place-items-center rounded-full bg-[#ffe6ca] text-[10px] font-bold text-[#a96410]">{(profile.username || "AD").slice(0, 2).toUpperCase()}</div><span className="text-xs font-bold text-ink">{profile.username || "Admin"}</span></div><button onClick={() => void logout()} className="rounded-lg px-2 py-1.5 text-xs font-semibold text-muted hover:bg-danger-soft hover:text-danger">Logout</button></div></header>
+      <header className="sticky top-0 z-10 flex h-[72px] items-center justify-between border-b border-line bg-white/90 px-5 backdrop-blur-md sm:px-8"><div className="flex items-center gap-3"><button onClick={() => setMobileOpen(true)} className="text-muted lg:hidden"><Menu size={21} /></button><div><p className="text-[11px] font-bold uppercase tracking-[.15em] text-muted">{today}</p><h1 className="mt-0.5 text-lg font-bold text-ink">{active === "dashboard" ? `Selamat pagi, ${profileName}` : nav.find(n => n.id === active)?.label}</h1></div></div><div className="flex items-center gap-2"><button onClick={() => setProfileOpen(true)} className="hidden items-center gap-2 rounded-lg px-2 py-1.5 text-muted hover:bg-canvas sm:flex"><div className="grid h-8 w-8 place-items-center rounded-full bg-[#ffe6ca] text-[10px] font-bold text-[#a96410]">{profileName.slice(0, 2).toUpperCase()}</div><span className="text-xs font-bold text-ink">{profileName}</span><Settings size={14} /></button><button onClick={() => void logout()} className="rounded-lg px-2 py-1.5 text-xs font-semibold text-muted hover:bg-danger-soft hover:text-danger">Logout</button></div></header>
       <main className="mx-auto max-w-[1400px] p-5 sm:p-8">{active === "dashboard" ? <LiveDashboard /> : active === "kartu-ujian" ? <ExamCardsPage /> : <LiveManagementPage section={active} />}</main>
     </div>
+    {profileOpen && <AdminProfileModal profile={profile} onClose={() => setProfileOpen(false)} onSaved={updatedProfile => { setProfile(updatedProfile); setProfileOpen(false); }} />}
   </div>;
 }
 
