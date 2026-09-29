@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Eye, EyeOff, KeyRound, LockKeyhole, NotebookPen, Sparkles, UserRound } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, KeyRound, LockKeyhole, NotebookIcon, NotebookPen, NotebookPenIcon, Sparkles, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function LoginScreen({ fixedRole }: { fixedRole: "admin" | "siswa" }) {
@@ -30,7 +30,7 @@ export function LoginScreen({ fixedRole }: { fixedRole: "admin" | "siswa" }) {
       <section className="relative hidden overflow-hidden bg-[#24294a] p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <div className="absolute -left-20 -top-24 h-80 w-80 rounded-full bg-brand/30 blur-3xl" />
         <div className="absolute -bottom-20 right-0 h-96 w-96 rounded-full bg-[#8e89ff]/20 blur-3xl" />
-        <div className="relative z-10 flex items-center gap-3 font-bold tracking-tight"><div className="grid h-9 w-9 place-items-center rounded-xl bg-white text-brand"><NotebookPen size={18} /></div> UTS App</div>
+        <div className="relative z-10 flex items-center gap-3 font-bold tracking-tight"><div className="grid h-9 w-9 place-items-center rounded-xl bg-white text-brand"><NotebookPenIcon size={18} /></div> UTS App</div>
         <div className="relative z-10 max-w-lg pb-10">
           <p className="mb-5 text-xs font-bold uppercase tracking-[0.22em] text-[#a9adce]">UJIAN TENGAH SEMESTER</p>
           <h1 className="text-5xl font-bold leading-[1.08] tracking-[-0.04em]">SMK Bintang Sembilan<br /><span className="text-[#9e9aff]">Bandar Mataram</span></h1>
@@ -42,7 +42,7 @@ export function LoginScreen({ fixedRole }: { fixedRole: "admin" | "siswa" }) {
 
       <section className="flex min-h-screen items-center justify-center p-6 sm:p-10">
         <div className="w-full max-w-[420px]">
-          <div className="mb-10 flex items-center gap-3 font-bold tracking-tight lg:hidden"><div className="grid h-9 w-9 place-items-center rounded-xl bg-brand text-white"><Sparkles size={18} /></div> EssaySpace</div>
+          <div className="mb-10 flex items-center gap-3 font-bold tracking-tight lg:hidden"><div className="grid h-9 w-9 place-items-center rounded-xl bg-brand text-white"><NotebookPenIcon size={18} /></div>UTS App</div>
           <div className="mb-8"><p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-brand">Selamat datang kembali</p><h2 className="text-3xl font-bold tracking-[-0.03em] text-ink">{role === "admin" ? "Masuk sebagai admin" : "Masuk ke ruang siswa"}</h2><p className="mt-2 text-sm text-muted">{role === "admin" ? "Kelola data dan ujian sekolah." : "Gunakan No. Ujian dan password dari admin."}</p></div>
           <div className="mb-7 rounded-xl bg-[#eef0f5] px-4 py-3 text-sm font-bold text-ink">Portal {role === "admin" ? "Admin Sekolah" : "Siswa"}</div>
           <form onSubmit={submit} className="space-y-5">
