@@ -1,12 +1,13 @@
 {
-  "/login/page": "app/login/page.js",
-  "/page": "app/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/admin/login/page": "app/admin/login/page.js",
-  "/admin/[[...section]]/page": "app/admin/[[...section]]/page.js",
-  "/api/auth/me/route": "app/api/auth/me/route.js",
+  "/page": "app/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
   "/api/admin/summary/route": "app/api/admin/summary/route.js",
+  "/login/page": "app/login/page.js",
+  "/api/auth/me/route": "app/api/auth/me/route.js",
+  "/admin/[[...section]]/page": "app/admin/[[...section]]/page.js",
   "/api/admin/[resource]/route": "app/api/admin/[resource]/route.js",
-  "/api/token/generate/route": "app/api/token/generate/route.js",
   "/api/admin/monitor/route": "app/api/admin/monitor/route.js",
-  "/api/auth/login/route": "app/api/auth/login/route.js"
+  "/admin/ekspor/[jadwalId]/route": "app/admin/ekspor/[jadwalId]/route.js"
 }
