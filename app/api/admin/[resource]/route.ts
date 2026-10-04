@@ -19,7 +19,10 @@ function isMissingTableError(error: any) { return error?.code === "42P01" || err
 
 function combineLocalDateTime(date?: string, time?: string) {
   if (!date || !time) return undefined;
-  const value = new Date(`${date}T${time}`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}(?::\d{2})?$/.test(time)) return undefined;
+  // Input jadwal adalah waktu lokal sekolah (Asia/Jakarta), bukan timezone server Vercel.
+  const normalizedTime = time.length === 5 ? `${time}:00` : time;
+  const value = new Date(`${date}T${normalizedTime}+07:00`);
   return Number.isNaN(value.getTime()) ? undefined : value.toISOString();
 }
 
