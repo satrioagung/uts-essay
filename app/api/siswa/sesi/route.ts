@@ -19,8 +19,17 @@ export async function POST(request: Request) {
   const { data: student } = await supabase.from("siswa").select("kelas_id").eq("id", auth.session.id).single();
   const allowedClassIds = new Set([schedule.kelas_id, ...(schedule.jadwal_kelas || []).map((item: { kelas_id: string }) => item.kelas_id)]);
   if (!student || !allowedClassIds.has(student.kelas_id)) return NextResponse.json({ error: "Jadwal bukan untuk kelasmu." }, { status: 403 });
-  const { data: previous } = await supabase.from("sesi_ujian").select("id,status,attempt_ke").eq("siswa_id", auth.session.id).eq("jadwal_id", body.jadwalId).order("attempt_ke", { ascending: false }).limit(1).maybeSingle();
-  if (previous) return NextResponse.json({ error: "Kamu sudah memiliki sesi untuk jadwal ini. Hubungi admin bila perlu melanjutkan atau mengulang." }, { status: 409 });
+  const { data: previous } = await supabase.from("sesi_ujian").select("id,status,attempt_ke,waktu_mulai_sesi,urutan_soal_acak").eq("siswa_id", auth.session.id).eq("jadwal_id", body.jadwalId).order("attempt_ke", { ascending: false }).limit(1).maybeSingle();
+  if (previous?.status === "sedang_mengerjakan") {
+    return NextResponse.json({ session: { id: previous.id, jadwal_id: body.jadwalId, waktu_mulai_sesi: previous.waktu_mulai_sesi, status: previous.status, urutan_soal_acak: previous.urutan_soal_acak, attempt_ke: previous.attempt_ke } });
+  }
+  if (previous?.status === "belum_mulai") {
+    const { data: session, error } = await supabase.from("sesi_ujian").update({ status: "sedang_mengerjakan", waktu_mulai_sesi: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", previous.id).select("id,jadwal_id,waktu_mulai_sesi,status,urutan_soal_acak,attempt_ke").single();
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    await supabase.from("jadwal").update({ status: "berlangsung" }).eq("id", body.jadwalId).eq("status", "siap");
+    return NextResponse.json({ session });
+  }
+  if (previous) return NextResponse.json({ error: "Kamu sudah memiliki sesi untuk jadwal ini. Hubungi admin untuk reset atau mengulang sesi." }, { status: 409 });
   const questions = (schedule.bank_soal as { soal?: Array<{ id: string; nomor: number }> } | null)?.soal || [];
   const order = questions.map(question => question.id);
   if (schedule.randomisasi_urutan_soal !== false) order.sort(() => Math.random() - 0.5);
