@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { syncScheduleStatuses } from "@/lib/schedule-status";
 
 function isMissingTableError(error: any) { return error?.code === "42P01" || error?.code === "PGRST205" || String(error?.message || "").toLowerCase().includes("could not find the table"); }
 
@@ -10,6 +11,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   if (!body.jadwalId || !body.token) return NextResponse.json({ error: "Jadwal dan token wajib diisi." }, { status: 400 });
   const supabase = createAdminClient();
+  await syncScheduleStatuses(supabase);
   let { data: schedule, error: scheduleError } = await supabase.from("jadwal").select("id,kelas_id,bank_soal_id,waktu_mulai,durasi_menit,randomisasi_urutan_soal,status,jadwal_kelas(kelas_id),token!inner(kode_token,status),bank_soal(soal(id,nomor))").eq("id", body.jadwalId).eq("token.kode_token", String(body.token).toUpperCase()).eq("token.status", "aktif").maybeSingle();
   if (scheduleError && isMissingTableError(scheduleError)) {
     ({ data: schedule, error: scheduleError } = await supabase.from("jadwal").select("id,kelas_id,bank_soal_id,waktu_mulai,durasi_menit,randomisasi_urutan_soal,status,token!inner(kode_token,status),bank_soal(soal(id,nomor))").eq("id", body.jadwalId).eq("token.kode_token", String(body.token).toUpperCase()).eq("token.status", "aktif").maybeSingle());

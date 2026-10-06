@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { deriveScheduleStatus, syncScheduleStatuses } from "@/lib/schedule-status";
 
 export async function POST(request: Request) {
   const auth = await requireRole("admin");
@@ -9,11 +10,15 @@ export async function POST(request: Request) {
   if (!body.jadwalId) return NextResponse.json({ error: "jadwalId wajib diisi." }, { status: 400 });
   const code = Math.random().toString(36).slice(2, 8).toUpperCase();
   const supabase = createAdminClient();
+  await syncScheduleStatuses(supabase);
+  const { data: schedule, error: scheduleReadError } = await supabase.from("jadwal").select("status,waktu_mulai,waktu_selesai,durasi_menit").eq("id", body.jadwalId).maybeSingle();
+  if (scheduleReadError) return NextResponse.json({ error: scheduleReadError.message }, { status: 500 });
+  if (!schedule) return NextResponse.json({ error: "Jadwal tidak ditemukan." }, { status: 404 });
   const { error: expireError } = await supabase.from("token").update({ status: "kedaluwarsa" }).eq("jadwal_id", body.jadwalId).eq("status", "aktif");
   if (expireError) return NextResponse.json({ error: expireError.message }, { status: 500 });
   const { data, error } = await supabase.from("token").insert({ jadwal_id: body.jadwalId, kode_token: code, status: "aktif" }).select("id,jadwal_id,kode_token,status,generated_at").single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  const { error: scheduleError } = await supabase.from("jadwal").update({ status: "siap" }).eq("id", body.jadwalId).eq("status", "draft");
+  const { error: scheduleError } = await supabase.from("jadwal").update({ status: deriveScheduleStatus({ ...schedule, status: "siap" }) }).eq("id", body.jadwalId).eq("status", "draft");
   if (scheduleError) return NextResponse.json({ error: scheduleError.message }, { status: 500 });
   return NextResponse.json({ ok: true, token: data });
 }

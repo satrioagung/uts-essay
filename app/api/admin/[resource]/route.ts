@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { deriveScheduleStatus, syncScheduleStatuses } from "@/lib/schedule-status";
 import crypto from "node:crypto";
 
 const tables = new Set(["mapel", "kelas", "bank-soal", "soal", "siswa", "jadwal"]);
@@ -33,6 +34,7 @@ export async function GET(_: Request, { params }: { params: { resource: string }
   if (!tables.has(resource)) return NextResponse.json({ error: "Resource tidak tersedia." }, { status: 404 });
   try {
     const supabase = createAdminClient();
+    if (resource === "jadwal") await syncScheduleStatuses(supabase);
     const query = resource === "mapel" ? supabase.from("mapel").select("id,nama_mapel,created_at").order("nama_mapel")
       : resource === "kelas" ? supabase.from("kelas").select("id,nama_kelas,created_at").order("nama_kelas")
       : resource === "bank-soal" ? supabase.from("bank_soal").select("id,nama_bank_soal,mapel_id,created_at,mapel(nama_mapel),soal(count)").order("created_at", { ascending: false })
@@ -114,9 +116,15 @@ export async function PATCH(request: Request, { params }: { params: { resource: 
   const body = await request.json().catch(() => ({}));
   if (!body.id) return NextResponse.json({ error: "ID wajib diisi." }, { status: 400 });
   const { id, ...bodyPayload } = body;
-  const payload = resource === "jadwal" ? buildSchedulePayload(bodyPayload) : bodyPayload;
+  let payload = resource === "jadwal" ? buildSchedulePayload(bodyPayload) : bodyPayload;
   try {
     const supabase = createAdminClient();
+    if (resource === "jadwal" && bodyPayload.status === undefined) {
+      const { data: currentSchedule, error: currentScheduleError } = await supabase.from("jadwal").select("status,waktu_mulai,waktu_selesai,durasi_menit").eq("id", id).maybeSingle();
+      if (currentScheduleError) throw currentScheduleError;
+      if (currentSchedule?.status === "draft") payload = { ...payload, status: "draft" };
+      else if (currentSchedule) payload = { ...payload, status: deriveScheduleStatus({ ...currentSchedule, ...payload }) };
+    }
     const scheduleClassIds = resource === "jadwal" ? getClassIds(bodyPayload) : [];
     if (scheduleClassIds.length > 1) {
       const { error: classTableError } = await supabase.from("jadwal_kelas").select("jadwal_id").limit(1);

@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { syncScheduleStatuses } from "@/lib/schedule-status";
 
 export async function GET() {
   const auth = await requireRole("siswa");
   if ("response" in auth) return auth.response;
   const supabase = createAdminClient();
+  await syncScheduleStatuses(supabase);
   const { data: student, error: studentError } = await supabase.from("siswa").select("id,nama,no_ujian,kelas_id,kelas(nama_kelas)").eq("id", auth.session.id).single();
   if (studentError) return NextResponse.json({ error: "Data siswa tidak ditemukan." }, { status: 404 });
   let schedules: any;

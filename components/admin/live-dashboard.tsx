@@ -31,8 +31,8 @@ export function LiveDashboard() {
     const response = await fetch("/api/admin/summary", { cache: "no-store" });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) { setLoading(false); return; }
-    const schedules = result.schedules || [];
-    setSummary(result);
+    const schedules = (result.schedules || []).filter((item: any) => ["siap", "berlangsung"].includes(item.status));
+    setSummary({ ...result, schedules });
     const fallback = schedules.find((item: any) => item.status === "berlangsung") || schedules[0] || null;
     const selected = schedules.find((item: any) => item.id === monitorScheduleRef.current?.id) || fallback;
     monitorScheduleRef.current = selected;
@@ -58,7 +58,7 @@ export function LiveDashboard() {
     return matchesClass && (!normalizedSearch || haystack.includes(normalizedSearch));
   });
   const statuses = { sedang_mengerjakan: visibleMonitor.filter(item => item.status === "sedang_mengerjakan").length, belum_mulai: visibleMonitor.filter(item => item.status === "belum_mulai").length, selesai: visibleMonitor.filter(item => item.status === "selesai").length, terputus: visibleMonitor.filter(item => item.status === "terputus").length };
-  const stats = [{ label: "Total Siswa", value: count("siswa"), meta: "Seluruh data siswa", icon: Users, color: "brand" }, { label: "Bank Soal", value: count("bank_soal"), meta: "Soal siap digunakan", icon: BookOpen, color: "success" }, { label: "Jadwal Aktif", value: count("jadwal"), meta: "Semua status", icon: CalendarDays, color: "warning" }, { label: "Perlu Ditinjau", value: String(statuses.terputus), meta: "Sesi terputus", icon: AlertTriangle, color: "danger" }];
+  const stats = [{ label: "Total Siswa", value: count("siswa"), meta: "Seluruh data siswa", icon: Users, color: "brand" }, { label: "Bank Soal", value: count("bank_soal"), meta: "Soal siap digunakan", icon: BookOpen, color: "success" }, { label: "Jadwal Aktif", value: String(summary.activeScheduleCount ?? 0), meta: "Siap / berlangsung", icon: CalendarDays, color: "warning" }, { label: "Perlu Ditinjau", value: String(statuses.terputus), meta: "Sesi terputus", icon: AlertTriangle, color: "danger" }];
   const classOptions = getClassOptions(monitorSchedule, monitor);
 
   function selectSchedule(schedule: any) { monitorScheduleRef.current = schedule; monitorClassIdRef.current = "all"; setMonitorSchedule(schedule); setMonitorClassId("all"); void loadMonitor(schedule.id, "all"); }

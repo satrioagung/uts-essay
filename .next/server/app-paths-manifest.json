@@ -1,7 +1,6 @@
 {
-  "/admin/[[...section]]/page": "app/admin/[[...section]]/page.js",
-  "/api/auth/me/route": "app/api/auth/me/route.js",
-  "/api/sesi/reset/route": "app/api/sesi/reset/route.js",
+  "/api/admin/summary/route": "app/api/admin/summary/route.js",
   "/api/admin/monitor/route": "app/api/admin/monitor/route.js",
-  "/api/admin/summary/route": "app/api/admin/summary/route.js"
+  "/api/auth/me/route": "app/api/auth/me/route.js",
+  "/admin/[[...section]]/page": "app/admin/[[...section]]/page.js"
 }
