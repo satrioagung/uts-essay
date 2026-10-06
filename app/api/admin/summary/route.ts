@@ -13,8 +13,8 @@ export async function GET() {
   const { count: activeScheduleCount } = await supabase.from("jadwal").select("id", { count: "exact", head: true }).in("status", ["siap", "berlangsung"]);
   let schedules: any;
   let scheduleError: any;
-  ({ data: schedules, error: scheduleError } = await supabase.from("jadwal").select("id,kelas_id,bank_soal_id,waktu_mulai,waktu_selesai,durasi_menit,status,kelas!jadwal_kelas_id_fkey(nama_kelas),jadwal_kelas(kelas!jadwal_kelas_kelas_id(id,nama_kelas)),bank_soal(nama_bank_soal,mapel(nama_mapel))").in("status", ["siap", "berlangsung"]).order("waktu_mulai").limit(5));
-  if (scheduleError) ({ data: schedules } = await supabase.from("jadwal").select("id,kelas_id,bank_soal_id,waktu_mulai,durasi_menit,status,kelas!jadwal_kelas_id_fkey(nama_kelas),bank_soal(nama_bank_soal,mapel(nama_mapel))").in("status", ["siap", "berlangsung"]).order("waktu_mulai").limit(5));
+  ({ data: schedules, error: scheduleError } = await supabase.from("jadwal").select("id,kelas_id,bank_soal_id,waktu_mulai,waktu_selesai,durasi_menit,status,kelas!jadwal_kelas_id_fkey(nama_kelas),jadwal_kelas(kelas!jadwal_kelas_kelas_id(id,nama_kelas)),bank_soal(nama_bank_soal,mapel(nama_mapel))").in("status", ["siap", "berlangsung"]).order("waktu_mulai"));
+  if (scheduleError) ({ data: schedules } = await supabase.from("jadwal").select("id,kelas_id,bank_soal_id,waktu_mulai,durasi_menit,status,kelas!jadwal_kelas_id_fkey(nama_kelas),bank_soal(nama_bank_soal,mapel(nama_mapel))").in("status", ["siap", "berlangsung"]).order("waktu_mulai"));
   const scheduleRows = schedules || [];
   const scheduleIds = scheduleRows.map((schedule: any) => schedule.id);
   let enrichedSchedules = scheduleRows;
