@@ -1,4 +1,11 @@
 {
+  "components/admin/question-bank.tsx -> @/components/admin/rich-text-editor": {
+    "id": "components/admin/question-bank.tsx -> @/components/admin/rich-text-editor",
+    "files": [
+      "static/css/_app-pages-browser_components_admin_rich-text-editor_tsx.css",
+      "static/chunks/_app-pages-browser_components_admin_rich-text-editor_tsx.js"
+    ]
+  },
   "node_modules/.pnpm/@supabase+auth-js@2.65.0/node_modules/@supabase/auth-js/dist/module/lib/helpers.js -> @supabase/node-fetch": {
     "id": "node_modules/.pnpm/@supabase+auth-js@2.65.0/node_modules/@supabase/auth-js/dist/module/lib/helpers.js -> @supabase/node-fetch",
     "files": []
