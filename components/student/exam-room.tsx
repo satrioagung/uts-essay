@@ -30,6 +30,8 @@ export function ExamRoom() {
         const result = await response.json();
         if (!response.ok) throw new Error(result.error);
         setSession(result.session);
+        setViolationOpen(result.session.status === "terputus");
+        setSubmitted(result.session.status === "selesai");
         setAnswers(Object.fromEntries((result.answers || []).map((answer: any) => [answer.soal_id, answer.jawaban_teks])));
         const duration = result.session.jadwal?.durasi_menit * 60 || 0;
         const elapsed = Math.floor((Date.now() - new Date(result.session.waktu_mulai_sesi).getTime()) / 1000);
